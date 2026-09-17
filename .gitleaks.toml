@@ -1,9 +1,9 @@
-# gitleaks configuration: default rules plus narrow allowlists for documentation examples.
+# gitleaks configuration: default rules plus a narrow allowlist for documentation examples.
+# Uses the single [allowlist] table so it works with the gitleaks version bundled in
+# gitleaks-action as well as newer releases.
 [extend]
 useDefault = true
 
-[[allowlists]]
+[allowlist]
 description = "Sample idempotency key in the LLD API example (not a secret)"
-condition = "AND"
-paths = ['''^docs/architecture/LLD\.md$''']
 regexes = ['''5b1e2c1a-7d7e-4f5e-9a51-0c2f5d3e9a10''']

@@ -1,8 +1,7 @@
-# Replace YOUR_GITHUB_USERNAME (scripts/bootstrap-github.sh does this for you).
-*                       @YOUR_GITHUB_USERNAME
-/docs/architecture/     @YOUR_GITHUB_USERNAME
-/docs/adr/              @YOUR_GITHUB_USERNAME
-/.github/               @YOUR_GITHUB_USERNAME
-/.claude/               @YOUR_GITHUB_USERNAME
-/openapi/               @YOUR_GITHUB_USERNAME
-/migrations/            @YOUR_GITHUB_USERNAME
+*                       @AbhishekKumarSingh07
+/docs/architecture/     @AbhishekKumarSingh07
+/docs/adr/              @AbhishekKumarSingh07
+/.github/               @AbhishekKumarSingh07
+/.claude/               @AbhishekKumarSingh07
+/openapi/               @AbhishekKumarSingh07
+/migrations/            @AbhishekKumarSingh07
