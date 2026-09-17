@@ -31,7 +31,7 @@ All business issues live in `kritvo-api`.
 | ID | Title | Repo | Type | Depends on | Risk | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | TASK-000 | Repository foundations for both repositories (docs, Claude Code setup, GitHub templates, CI skeleton) | api + web | chore | — | Low | Done |
-| TASK-001 | API scaffolding (FastAPI), tooling, CI and OpenAPI export | api | feat | TASK-000 | Low | In progress |
+| TASK-001 | API scaffolding (FastAPI), tooling, CI and OpenAPI export | api | feat | TASK-000 | Low | Done |
 | TASK-023 | Web scaffolding, tooling, CI and `pnpm gen:api` | web | feat | TASK-000 | Low | Ready |
 | TASK-002 | Database foundation: roles, tenancy helpers, RLS pattern, isolation tests | api | security | 001 | High | Backlog |
 | TASK-003 | Identity: users, memberships, roles, OTP and password + TOTP login, tokens | api | security | 002 | High | Backlog |

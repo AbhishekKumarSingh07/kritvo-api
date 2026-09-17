@@ -19,6 +19,7 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 
 - `status-update` skill: commit message and PR title now end with a task ID, so they pass the pr-title check (TASK-000).
 - `CLAUDE.md`: added a Session rules section covering task-start/task-finish triggers, plain-language explanations, one question at a time, PR conventions, and never editing `kritvo-web` from this repo (TASK-000).
+- CI: dropped the `pyproject.toml` presence guard now that the scaffold is in place, so Ruff, mypy, import-linter, pytest, the Docker build and the OpenAPI check always run (TASK-001).
 
 ### Fixed
 
