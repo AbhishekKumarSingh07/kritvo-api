@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+    labels: ["type:ci", "dependencies"]
+
+  # pyproject.toml and uv.lock exist now. Before enabling, confirm in GitHub's
+  # Dependabot documentation that the "uv" ecosystem is supported for your plan.
+  # - package-ecosystem: "uv"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+  #   commit-message:
+  #     prefix: "build"

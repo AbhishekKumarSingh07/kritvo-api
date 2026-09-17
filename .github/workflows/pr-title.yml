@@ -1,0 +1,37 @@
+name: pr-title
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            refactor
+            perf
+            security
+            test
+            docs
+            ci
+            build
+            chore
+            revert
+          requireScope: false
+          subjectPattern: ^.+ \((TASK|BIZ)-\d{3}\)$
+          subjectPatternError: |
+            The title "{title}" must end with a task ID, for example:
+            feat(api): add tenant RLS helpers (TASK-002)
+          ignoreLabels: |
+            dependencies

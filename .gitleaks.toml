@@ -1,0 +1,9 @@
+# gitleaks configuration: default rules plus narrow allowlists for documentation examples.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Sample idempotency key in the LLD API example (not a secret)"
+condition = "AND"
+paths = ['''^docs/architecture/LLD\.md$''']
+regexes = ['''5b1e2c1a-7d7e-4f5e-9a51-0c2f5d3e9a10''']

@@ -1,0 +1,12 @@
+{
+  "folders": [
+    { "name": "kritvo-api", "path": "." },
+    { "name": "kritvo-web", "path": "../kritvo-web" }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/.venv": true
+    }
+  }
+}

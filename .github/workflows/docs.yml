@@ -1,0 +1,68 @@
+name: docs
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "30 3 * * 1" # Mondays 09:00 IST: external link check
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docs-lint:
+    name: docs-lint
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Markdown lint
+        uses: DavidAnson/markdownlint-cli2-action@v24
+        with:
+          globs: "**/*.md"
+
+      - name: Internal links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress --config lychee.toml "./**/*.md"
+
+      - name: Design docs carry a version bump
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          fail=0
+          for f in docs/architecture/HLD.md docs/architecture/LLD.md; do
+            if git diff --name-only "origin/${BASE_REF}...HEAD" | grep -qx "$f"; then
+              if ! git diff "origin/${BASE_REF}...HEAD" -- "$f" | grep -qE '^\+\| \*\*Version\*\* \|'; then
+                echo "::error file=$f::$f changed without a Version bump. Update the Version row and Revision history (use /doc-change)."
+                fail=1
+              fi
+            fi
+          done
+          exit $fail
+
+      - name: Archive is read-only
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if git diff --name-only --diff-filter=MD "origin/${BASE_REF}...HEAD" | grep -q '^docs/architecture/archive/'; then
+            echo "::error::Files in docs/architecture/archive/ must not be modified or deleted."
+            exit 1
+          fi
+
+  external-links:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --config lychee.toml "./**/*.md"
+          fail: false

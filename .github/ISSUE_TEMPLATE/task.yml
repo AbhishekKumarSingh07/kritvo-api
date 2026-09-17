@@ -1,0 +1,50 @@
+name: Task
+description: Engineering or business task from docs/planning/TASKS.md
+title: "TASK-###: "
+labels: ["task"]
+body:
+  - type: input
+    id: task_id
+    attributes:
+      label: Task ID
+      placeholder: TASK-002 or BIZ-001
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      options: [feat, fix, refactor, perf, security, test, docs, chore, business]
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: One sentence.
+    validations:
+      required: true
+  - type: input
+    id: depends
+    attributes:
+      label: Depends on
+      placeholder: TASK-001
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: reference
+    attributes:
+      label: Design reference
+      placeholder: LLD §2, ADR-0001
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk
+      options: [Low, Medium, High]

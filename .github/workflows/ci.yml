@@ -1,0 +1,58 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Skip until TASK-001 adds pyproject.toml
+        id: guard
+        run: |
+          if [ -f pyproject.toml ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No pyproject.toml yet; skipping Python checks"
+          fi
+
+      - if: steps.guard.outputs.present == 'true'
+        uses: astral-sh/setup-uv@v10.1.0
+      - if: steps.guard.outputs.present == 'true'
+        run: uv sync --frozen
+      - if: steps.guard.outputs.present == 'true'
+        run: uv run ruff check .
+      - if: steps.guard.outputs.present == 'true'
+        run: uv run ruff format --check .
+      - if: steps.guard.outputs.present == 'true'
+        run: uv run mypy src
+      - if: steps.guard.outputs.present == 'true'
+        run: uv run lint-imports
+      - if: steps.guard.outputs.present == 'true'
+        run: uv run pytest -q
+
+      - name: Container image builds
+        if: steps.guard.outputs.present == 'true'
+        run: docker build --tag kritvo-api:ci .
+
+      - name: OpenAPI contract is up to date
+        if: steps.guard.outputs.present == 'true' && hashFiles('openapi/openapi.json') != ''
+        run: |
+          uv run kritvo-openapi
+          git diff --exit-code -- openapi/openapi.json \
+            || { echo "::error file=openapi/openapi.json::Stale contract. Run 'uv run kritvo-openapi' and commit."; exit 1; }
+
+  # Terraform fmt/validate arrives with TASK-020.

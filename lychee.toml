@@ -1,0 +1,11 @@
+# Link checker settings (used by .github/workflows/docs.yml)
+exclude = [
+  "^https://claude\\.ai/",
+  "^https://github\\.com/<",
+  "^http://localhost",
+  "^https://docs\\.kritvo\\.app",
+  "^https://verify\\.",
+]
+accept = ["200..=299", "403", "429"]
+max_retries = 2
+timeout = 20
