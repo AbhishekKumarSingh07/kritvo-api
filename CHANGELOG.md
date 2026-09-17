@@ -18,6 +18,7 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 ### Changed
 
 - `status-update` skill: commit message and PR title now end with a task ID, so they pass the pr-title check (TASK-000).
+- `CLAUDE.md`: added a Session rules section covering task-start/task-finish triggers, plain-language explanations, one question at a time, PR conventions, and never editing `kritvo-web` from this repo (TASK-000).
 
 ### Fixed
 

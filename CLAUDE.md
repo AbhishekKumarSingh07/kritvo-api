@@ -80,3 +80,17 @@ service; propose an ADR instead. FastAPI conventions are in `.claude/rules/api-p
 
 - Never force-push, rewrite published history, or delete tags.
 - Ask before `git push`, `gh pr merge`, or any command that changes GitHub settings.
+
+## Session rules
+
+- "start TASK-###" / "start BIZ-###" → run `/task-start`: read the task and its LLD/HLD detail,
+  check dependencies, create the branch, then show a short plan and wait for approval before code.
+- "finish the task" → run `/task-finish`.
+- Explain actions in plain language, a couple of sentences at a time; assume no developer
+  background, and give a one-line explanation for any jargon.
+- Ask one question at a time. Never ask for specifications already in the docs.
+- PR/commit titles: `type(scope): summary (TASK-###)`. PR body: `Closes #<issue>` if fully done,
+  `Refs #<issue>` if partial. Web tasks reference issues as `AbhishekKumarSingh07/kritvo-api#<number>`.
+- Never edit files in `../kritvo-web` from this repository. Never push or merge without asking.
+- On failure, explain the error in plain language with the likely cause and the options, before
+  changing anything.
