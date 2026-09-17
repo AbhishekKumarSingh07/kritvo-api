@@ -4,13 +4,13 @@ Last updated: 2026-09-17 · Phase 0 (Foundations)
 
 ## Summary
 
-Design documents are done (HLD 2.0, LLD 1.2). Code lives in two repositories: `kritvo-api` (with all docs) and `kritvo-web`. The product is named Kritvo, pending availability checks. The repository foundation (TASK-000) is being set up.
+Design documents are done (HLD 2.0, LLD 1.2). Both repositories are on GitHub with green CI, and the project now lives in `~/code/kritvo` (moved out of iCloud, which had hidden `.pth` files and broke local `lint-imports`). The product is named Kritvo, pending availability checks.
 
 ## Next up
 
-1. Finish TASK-000: push `kritvo-api` and `kritvo-web`, run `scripts/bootstrap-github.sh`, connect the Claude.ai project.
+1. TASK-001: verify and close the FastAPI scaffold.
 2. BIZ-001: domain and trademark checks for "Kritvo".
-3. TASK-001: the FastAPI scaffold is in the starter; finish it by confirming CI (including the Docker build) is green on GitHub and `docker compose up` works locally. Then TASK-023 (web scaffolding).
+3. TASK-023: web scaffolding.
 
 ## Blocked
 
@@ -27,5 +27,5 @@ Design documents are done (HLD 2.0, LLD 1.2). Code lives in two repositories: `k
 
 | Document | Version | Tag |
 | --- | --- | --- |
-| HLD | 2.0 | `hld-v2.0` (create after first push) |
-| LLD | 1.2 | `lld-v1.2` (create after first push) |
+| HLD | 2.0 | `hld-v2.0` |
+| LLD | 1.2 | `lld-v1.2` |

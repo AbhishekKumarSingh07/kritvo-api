@@ -15,6 +15,10 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 - Claude Code `/new-module` skill and FastAPI rules for backend code.
 - Repository foundations: Claude Code instructions, rules and skills; GitHub templates; CI, docs, PR-title and secret-scan workflows; GitHub bootstrap script for both repositories (TASK-000).
 
+### Changed
+
+- `status-update` skill: commit message and PR title now end with a task ID, so they pass the pr-title check (TASK-000).
+
 ### Fixed
 
 - Secret scan: pin `gitleaks-action` to gitleaks 8.30.1 and switch `.gitleaks.toml` to the single `[allowlist]` table so the sample idempotency key in the LLD is allowlisted correctly; set real code owners in `.github/CODEOWNERS` (TASK-000).
