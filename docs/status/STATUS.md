@@ -19,7 +19,7 @@ Design documents are done (HLD 2.0, LLD 1.2). Both repositories are on GitHub wi
 
 ## Decisions pending
 
-- Accept ADR-0001, 0002, 0004, 0005 (BIZ-012).
+- Accept ADR-0002, 0004, 0005 (BIZ-012); ADR-0001 accepted 2026-09-18.
 - ADR-0003 queue choice (TASK-004).
 - Meta pricing for in-window replies from 1 Oct 2026 (BIZ-010).
 

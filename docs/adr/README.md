@@ -6,7 +6,7 @@ Rules: statuses are Proposed, Accepted, Rejected, Deprecated or Superseded by AD
 
 | ADR | Title | Status | Date |
 | --- | --- | --- | --- |
-| [0001](0001-multi-tenancy-with-rls.md) | Shared schema with PostgreSQL row-level security | Proposed | 2026-09-17 |
+| [0001](0001-multi-tenancy-with-rls.md) | Shared schema with PostgreSQL row-level security | Accepted | 2026-09-17 |
 | [0002](0002-whatsapp-number-model.md) | One Kritvo WhatsApp number in MVP | Proposed | 2026-09-17 |
 | [0003](0003-background-queue.md) | Background queue and scheduler leader | Proposed (open) | 2026-09-17 |
 | [0004](0004-events-for-field-actions.md) | Events for field actions, versions for office edits | Proposed | 2026-09-17 |
