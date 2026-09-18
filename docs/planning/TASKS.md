@@ -24,7 +24,7 @@ All business issues live in `kritvo-api`.
 | BIZ-009 | Collect DG-set template data (intervals, checklists, parts) | BIZ-006 | Backlog | Unblocks TASK-007 |
 | BIZ-010 | Confirm Meta pricing for in-window replies from 1 Oct 2026 | — | Ready | HLD 7.6 |
 | BIZ-011 | Counsel review: DPDP staff notice and processor terms | — | Backlog | Unblocks TASK-021 |
-| BIZ-012 | Review and accept ADR-0001, 0002, 0004, 0005 | — | Ready | ADR-0006 already accepted |
+| BIZ-012 | Review and accept ADR-0001, 0002, 0004, 0005 | — | In progress | ADR-0001 accepted 2026-09-18; 0002/0004/0005 pending |
 
 ## Phase 1 — MVP (engineering)
 
