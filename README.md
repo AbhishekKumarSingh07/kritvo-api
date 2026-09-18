@@ -2,7 +2,7 @@
 
 FastAPI backend for Kritvo, a WhatsApp-first field operations platform for Indian service and maintenance contractors. This repository also holds the infrastructure code and **all project documentation**. The UI lives in the separate `kritvo-web` repository.
 
-> **Status:** Phase 0 (foundations). FastAPI scaffold with health endpoints, problem-details errors and the OpenAPI contract export is in place (TASK-001). See [docs/status/STATUS.md](docs/status/STATUS.md).
+> **Status:** Phase 0 (foundations). FastAPI scaffold (TASK-001) and tenant-isolated database foundation with row-level security (TASK-002) are in place. See [docs/status/STATUS.md](docs/status/STATUS.md).
 > **Licence:** Proprietary. All rights reserved.
 
 ## Repository map
@@ -10,7 +10,8 @@ FastAPI backend for Kritvo, a WhatsApp-first field operations platform for India
 | Path | What lives there |
 | --- | --- |
 | `src/kritvo/` | Python 3.13 + FastAPI package: `main_api.py`, `main_gateway.py`, `core/`, `shared/`, `modules/` |
-| `tests/` | pytest suite |
+| `tests/` | pytest suite, including `tests/isolation/` (tenant RLS, real PostgreSQL) |
+| `migrations/` | Alembic migrations, run as `kritvo_owner` (TASK-002) |
 | `pyproject.toml`, `uv.lock` | Dependencies and tool settings (uv, Ruff, mypy, pytest, import-linter) |
 | `Dockerfile`, `docker-compose.yml` | Container image and local stack |
 | `openapi/` | Committed API contract used by `kritvo-web` |
@@ -18,7 +19,7 @@ FastAPI backend for Kritvo, a WhatsApp-first field operations platform for India
 | `docs/` | All design, planning and status documents ([index](docs/README.md)) |
 | `.claude/`, `CLAUDE.md` | Instructions, rules and skills for Claude Code |
 | `.github/` | CI workflows, PR and issue templates |
-| `scripts/` | Repository helpers, including the GitHub bootstrap for both repositories |
+| `scripts/` | Repository helpers: the GitHub bootstrap for both repositories, and `bootstrap-db.sql` (database roles, TASK-002) |
 | `kritvo.code-workspace` | VS Code workspace that opens both repositories |
 
 ## Key documents
@@ -46,10 +47,11 @@ cd kritvo-api
 
 uv sync                                            # install dependencies
 cp .env.example .env                               # local settings
-uv run uvicorn kritvo.main_api:app --reload        # http://localhost:8000/healthz and /docs
-uv run pytest                                      # tests
+uv run pytest                                      # tests (no database needed)
 
-docker compose up --build                          # API, gateway and PostgreSQL 16
+docker compose up -d db                            # PostgreSQL 16, bootstraps its roles on first run
+uv run alembic upgrade head                        # create the tables (reads DATABASE_OWNER_URL from .env)
+docker compose up --build                          # API, gateway and PostgreSQL 16 → http://localhost:8000/healthz
 claude                                             # Claude Code reads CLAUDE.md
 ```
 
@@ -59,6 +61,8 @@ claude                                             # Claude Code reads CLAUDE.md
 | `uv run mypy src` | Type checks (strict) |
 | `uv run lint-imports` | Module boundary rules |
 | `uv run kritvo-openapi` | Regenerate `openapi/openapi.json` after API changes |
+| `uv run alembic upgrade head` | Apply pending migrations (reads `DATABASE_OWNER_URL`) |
+| `uv run alembic revision -m "..."` | Create a new migration |
 
 ## How work is tracked
 

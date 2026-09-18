@@ -14,7 +14,8 @@ class Settings(BaseSettings):
     app_env: Literal["local", "test", "staging", "production"] = "local"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
-    # Used from TASK-002 onwards; optional until then so the app starts without a database.
+    # kritvo_app credentials (LLD section 2.1). Optional so the app and its tests can
+    # start without a live database; docker-compose and production always set it.
     database_url: str | None = None
 
     @property

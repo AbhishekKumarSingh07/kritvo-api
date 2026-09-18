@@ -40,6 +40,7 @@ service; propose an ADR instead. FastAPI conventions are in `.claude/rules/api-p
 - Run API: `uv run uvicorn kritvo.main_api:app --reload` → <http://localhost:8000/docs>
 - Run gateway: `uv run uvicorn kritvo.main_gateway:app --port 8001 --reload`
 - Full stack with PostgreSQL: `docker compose up --build`
+- Migrations: `docker compose up -d db` then `uv run alembic upgrade head` (runs as `kritvo_owner`, LLD section 2.1)
 - Checks: `uv run ruff check .` · `uv run ruff format --check .` · `uv run mypy src` · `uv run lint-imports` · `uv run pytest`
 - Contract: `uv run kritvo-openapi` (writes `openapi/openapi.json`; a test fails if it is stale)
 - Add a dependency: `uv add <package>` (dev: `uv add --dev <package>`); commit `uv.lock`

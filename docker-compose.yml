@@ -10,6 +10,9 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # Runs once, on first startup only, as the postgres superuser: creates the
+      # kritvo_owner / kritvo_app / kritvo_system roles (LLD section 2.1).
+      - ./scripts/bootstrap-db.sql:/docker-entrypoint-initdb.d/bootstrap-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d kritvo"]
       interval: 5s
@@ -21,7 +24,9 @@ services:
     environment:
       APP_ENV: local
       LOG_LEVEL: DEBUG
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/kritvo
+      # kritvo_app: NOBYPASSRLS, so local dev exercises the same tenant isolation as
+      # production. Migrations run separately, as kritvo_owner — see the README.
+      DATABASE_URL: postgresql+asyncpg://kritvo_app:change-me@db:5432/kritvo
       CORS_ORIGINS: '["http://localhost:5173"]'
     ports:
       - "8000:8000"

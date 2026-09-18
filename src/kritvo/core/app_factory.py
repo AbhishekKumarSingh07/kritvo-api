@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from kritvo import __version__
+from kritvo.core.db import create_engine, create_sessionmaker
 from kritvo.core.errors import install_error_handlers
 from kritvo.core.health import router as health_router
 from kritvo.core.logging import configure_logging
@@ -16,10 +17,19 @@ from kritvo.core.settings import Settings, get_settings
 
 def _lifespan(settings: Settings) -> Callable[[FastAPI], AbstractAsyncContextManager[None]]:
     @asynccontextmanager
-    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         configure_logging(settings.log_level)
-        # TASK-002: create the database engine here and dispose it on shutdown.
-        yield
+        # database_url is optional so the app can still start (e.g. in tests that never
+        # touch the database) without a live PostgreSQL instance configured.
+        if settings.database_url is not None:
+            engine = create_engine(settings.database_url)
+            app.state.db_sessionmaker = create_sessionmaker(engine)
+            try:
+                yield
+            finally:
+                await engine.dispose()
+        else:
+            yield
 
     return lifespan
 

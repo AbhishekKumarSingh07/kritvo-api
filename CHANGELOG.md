@@ -14,6 +14,7 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 - FastAPI scaffold: API and gateway apps, settings, problem-details errors, JSON logging, request IDs, health endpoints, `kritvo-openapi` contract export, tests, Ruff/mypy/import-linter config, Dockerfile and Docker Compose (TASK-001).
 - Claude Code `/new-module` skill and FastAPI rules for backend code.
 - Repository foundations: Claude Code instructions, rules and skills; GitHub templates; CI, docs, PR-title and secret-scan workflows; GitHub bootstrap script for both repositories (TASK-000).
+- Database foundation and tenant isolation: `kritvo_owner` / `kritvo_app` / `kritvo_system` roles (`scripts/bootstrap-db.sql`); Alembic migrations for `tenants`, `users`, `roles`, `memberships`, `customers`, `sites` with forced row-level security; the `enable_tenant_rls()` migration helper; `core/db.py`'s tenant-scoped sessions with the PgBouncer-safe transaction-local context from ADR-0001; the `tests/isolation/` suite (coverage, behaviour, portal, no-context and connection-reuse checks) against a real, throwaway PostgreSQL (TASK-002).
 
 ### Changed
 
