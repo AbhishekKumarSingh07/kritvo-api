@@ -4,11 +4,11 @@ Last updated: 2026-09-19 · Phase 0 (Foundations)
 
 ## Summary
 
-Design documents are done (HLD 2.0, LLD 1.2). Both repositories are on GitHub with green CI, and the project now lives in `~/code/kritvo` (moved out of iCloud, which had hidden `.pth` files and broke local `lint-imports`). The FastAPI scaffold (TASK-001), web scaffold (TASK-023) and the database foundation with tenant isolation (TASK-002) are all verified and closed. ADR-0002 (WhatsApp number model) was refined with a build requirement for TASK-013, still awaiting accept/reject. The product is named Kritvo, pending availability checks.
+Design documents are in progress (HLD 2.0, LLD 1.4). Both repositories are on GitHub with green CI, and the project now lives in `~/code/kritvo` (moved out of iCloud, which had hidden `.pth` files and broke local `lint-imports`). The FastAPI scaffold (TASK-001), web scaffold (TASK-023) and the database foundation with tenant isolation (TASK-002) are all verified and closed. TASK-003 (identity) groundwork is done: ADR-0008 (stub notification delivery) and ADR-0009 (Postgres auth rate limits) are accepted, and the LLD has the tables TASK-003 needs — the task itself has not started. ADR-0002 (WhatsApp number model) was refined with a build requirement for TASK-013, still awaiting accept/reject. The product is named Kritvo, pending availability checks.
 
 ## Next up
 
-1. TASK-003: identity — users, memberships, roles, OTP and password + TOTP login, tokens (`kritvo-api`).
+1. TASK-003: identity — users, memberships, roles, OTP and password + TOTP login, tokens (`kritvo-api`); docs groundwork merged, code not started.
 2. BIZ-012: review and accept the remaining ADRs (0002, 0004, 0005).
 3. BIZ-001: domain and trademark checks for "Kritvo" (pushed to the end of the priority list).
 
@@ -19,7 +19,7 @@ Design documents are done (HLD 2.0, LLD 1.2). Both repositories are on GitHub wi
 
 ## Decisions pending
 
-- Accept ADR-0002, 0004, 0005 (BIZ-012); ADR-0001 accepted 2026-09-18.
+- Accept ADR-0002, 0004, 0005 (BIZ-012); ADR-0001 accepted 2026-09-18, ADR-0008 and ADR-0009 accepted 2026-09-19.
 - ADR-0003 queue choice (TASK-004).
 - Meta pricing for in-window replies from 1 Oct 2026 (BIZ-010).
 
@@ -28,4 +28,4 @@ Design documents are done (HLD 2.0, LLD 1.2). Both repositories are on GitHub wi
 | Document | Version | Tag |
 | --- | --- | --- |
 | HLD | 2.0 | `hld-v2.0` |
-| LLD | 1.2 | `lld-v1.2` |
+| LLD | 1.4 | `lld-v1.2` (not yet re-tagged for 1.3/1.4) |
