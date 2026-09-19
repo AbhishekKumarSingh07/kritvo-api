@@ -31,8 +31,21 @@ $$;
 
 ALTER DATABASE kritvo OWNER TO kritvo_owner;
 
+-- Lets a migration (running as kritvo_owner) hand ownership of one function to
+-- kritvo_system, for lookups that must run before a tenant is known (TASK-003) and so
+-- need kritvo_system's BYPASSRLS on tables with FORCE ROW LEVEL SECURITY, such as
+-- `users`. This is narrower than giving kritvo_owner BYPASSRLS itself, which would
+-- silently exempt it from FORCE on every table, not just this one lookup.
+GRANT kritvo_system TO kritvo_owner;
+
 GRANT CONNECT ON DATABASE kritvo TO kritvo_app, kritvo_system;
 GRANT USAGE ON SCHEMA public TO kritvo_app, kritvo_system;
+-- PostgreSQL requires a role to hold CREATE on the schema to become the owner of an
+-- object in it (blocks ownership transfer as a privilege-escalation route), so
+-- kritvo_system needs this for the ALTER FUNCTION ... OWNER TO above to succeed. It
+-- does not mean kritvo_system creates its own objects in practice — only kritvo_owner
+-- runs migrations.
+GRANT CREATE ON SCHEMA public TO kritvo_system;
 
 -- Tables and sequences that kritvo_owner creates from here on (i.e. every Alembic
 -- migration) are readable/writable by the runtime roles by default, with no DDL rights.

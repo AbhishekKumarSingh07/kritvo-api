@@ -30,6 +30,11 @@ language/service. Propose an ADR instead.
 
 ## Data and safety
 
+- No SQLAlchemy ORM declarative models (no `Mapped[...]`/`mapped_column` layer). Migrations and
+  application code both use plain parameterized SQL through `sqlalchemy.text()`, matching
+  `core/db.py` and the TASK-002 migrations — this keeps RLS and raw DDL predictable and avoids a
+  second, ORM-shaped description of the same tables drifting from the SQL one. A module's
+  `models.py` is a docstring only, not a models file.
 - Every tenant table: `tenant_id`, `enable_tenant_rls()` in the same migration, isolation tests.
 - Services own transactions; dependencies never commit.
 - Bind SQL parameters; no f-strings or `%` formatting in SQL.
