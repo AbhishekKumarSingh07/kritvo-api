@@ -67,6 +67,8 @@ service; propose an ADR instead. FastAPI conventions are in `.claude/rules/api-p
 - Field actions are append-only events with `client_op_id` for idempotency.
 - Job state changes only through the workflow engine (LLD section 4).
 - Never invent library APIs or config keys. If unsure, check the installed package or ask.
+- The notification-sending interface (ADR-0008) has exactly one production implementation. Never
+  add a log-based or no-op sender to a production code path, and never relax its startup guard.
 
 ## Documentation rules
 

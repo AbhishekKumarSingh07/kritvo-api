@@ -11,6 +11,8 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 - HLD v2.0 and LLD v1.2 for Kritvo in `docs/architecture/` (BIZ-000).
 - Opsly HLD v1.0 archived in `docs/architecture/archive/`.
 - ADR-0001 to ADR-0007; ADR-0006 records the split into `kritvo-api` and `kritvo-web`; ADR-0007 fixes the backend stack on Python 3.13 and FastAPI.
+- ADR-0008 (stub outbound notification delivery until a channel exists) and ADR-0009 (rate-limit auth with Postgres counters, not Redis, until ADR-0003), both Accepted (TASK-003).
+- `CLAUDE.md`: rule that the notification-sending interface (ADR-0008) has exactly one production implementation, never a log-based or no-op sender, and its startup guard is never relaxed (TASK-003).
 - FastAPI scaffold: API and gateway apps, settings, problem-details errors, JSON logging, request IDs, health endpoints, `kritvo-openapi` contract export, tests, Ruff/mypy/import-linter config, Dockerfile and Docker Compose (TASK-001).
 - Claude Code `/new-module` skill and FastAPI rules for backend code.
 - Repository foundations: Claude Code instructions, rules and skills; GitHub templates; CI, docs, PR-title and secret-scan workflows; GitHub bootstrap script for both repositories (TASK-000).
@@ -23,6 +25,9 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 - CI: dropped the `pyproject.toml` presence guard now that the scaffold is in place, so Ruff, mypy, import-linter, pytest, the Docker build and the OpenAPI check always run (TASK-001).
 - ADR-0001 accepted: added the local-install deployment-mode rationale and made the PgBouncer/prepared-statement mitigation (`SET LOCAL` semantics, `statement_cache_size=0`) an explicit decision point rather than an implementation detail (BIZ-012).
 - ADR-0002: added a build requirement that TASK-013 resolve outbound WhatsApp sending per tenant (via `wa_accounts`) from the start, so moving a tenant onto its own number later is a data change, not a rebuild (BIZ-012).
+- LLD to v1.3: added `otp_codes`, `refresh_tokens` and `auth_rate_limits` tables for TASK-003; noted the stubbed notification delivery (ADR-0008) and Postgres-backed auth rate limiting (ADR-0009) (TASK-003).
+- LLD to v1.4: ADR-0008 accepted with binding exit conditions; documented the local/dev-only logging-sender carve-out in 12.4; raised TASK-019's risk to Medium and added stub-removal preconditions to TASK-013, TASK-019 and TASK-022 (TASK-003).
+- `docs/planning/TASKS.md`: added acceptance-criteria checkboxes recording ADR-0008's stub-removal exit conditions against TASK-013, TASK-019 and TASK-022 (TASK-003).
 
 ### Fixed
 

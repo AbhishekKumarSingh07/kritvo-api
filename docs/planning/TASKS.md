@@ -50,7 +50,17 @@ All business issues live in `kritvo-api`.
 | TASK-016 | Office web app: dispatch board, jobs, customers, review queue, inventory | web | feat | 008, 010, 011, 023 | Medium | Backlog |
 | TASK-017 | Technician PWA and offline outbox; sync API | web + api | feat | 008, 009, 023 | High | Backlog |
 | TASK-018 | Owner dashboard, daily WhatsApp summary, parts variance report | web + api | feat | 011, 012, 013, 023 | Low | Backlog |
-| TASK-019 | Notification router and preferences | api | feat | 013 | Low | Backlog |
+| TASK-019 | Notification router and preferences | api | feat | 013 | Medium | Backlog |
 | TASK-020 | Terraform production, observability, alerts, backups, restore drill | api | perf | 001, BIZ-002 | Medium | Backlog |
 | TASK-021 | Privacy: staff notice, retention purge, export and erase tools | api + web | security | 009, 010, BIZ-011 | Medium | Backlog |
 | TASK-022 | Pilot at Rahul Electricals: import, training, shadow-mode calibration | api | docs | All | Medium | Backlog |
+
+## Acceptance criteria added by ADR-0008
+
+The notification-delivery stub (ADR-0008) is deliberately temporary. These checkboxes record its
+exit conditions where the tasks that must clear them are actually planned, so removal is not
+forgotten. See ADR-0008's "Follow-up required" section for the full list.
+
+- [ ] TASK-013: Real sender registered behind the TASK-003 notification interface.
+- [ ] TASK-019: ADR-0008 logging sender is no longer reachable in staging or production; startup-guard test passes.
+- [ ] TASK-022: Pilot environment does not resolve to the ADR-0008 logging sender.
