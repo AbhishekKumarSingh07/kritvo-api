@@ -28,6 +28,7 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 - LLD to v1.3: added `otp_codes`, `refresh_tokens` and `auth_rate_limits` tables for TASK-003; noted the stubbed notification delivery (ADR-0008) and Postgres-backed auth rate limiting (ADR-0009) (TASK-003).
 - LLD to v1.4: ADR-0008 accepted with binding exit conditions; documented the local/dev-only logging-sender carve-out in 12.4; raised TASK-019's risk to Medium and added stub-removal preconditions to TASK-013, TASK-019 and TASK-022 (TASK-003).
 - `docs/planning/TASKS.md`: added acceptance-criteria checkboxes recording ADR-0008's stub-removal exit conditions against TASK-013, TASK-019 and TASK-022 (TASK-003).
+- LLD to v1.5: added `roles.perms_ver`; corrected the phone_hash/refresh-token/membership/TOTP-secret lookups from `kritvo_owner` to `kritvo_system` in Sections 2.1 and 3.2, since `FORCE ROW LEVEL SECURITY` applies even to a table's owner — gaps found while building TASK-003's identity module (TASK-003).
 
 ### Fixed
 
