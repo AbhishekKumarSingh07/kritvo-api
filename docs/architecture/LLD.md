@@ -2,9 +2,9 @@
 
 | Field | Value |
 | --- | --- |
-| **Version** | 1.2 |
+| **Version** | 1.4 |
 | **Status** | Draft for review |
-| **Last updated** | 2026-09-17 |
+| **Last updated** | 2026-09-19 |
 | **Owner** | Project lead |
 | **Companion** | [HLD](HLD.md) · [Architecture summary](ARCHITECTURE.md) · [ADRs](../adr/README.md) |
 | **Implements** | HLD v2.0 |
@@ -300,6 +300,45 @@ CREATE TABLE devices (
   UNIQUE (tenant_id, user_id, fingerprint)
 );
 
+CREATE TABLE otp_codes (                         -- global identity, no tenant_id: phone login runs before a tenant is picked (Section 12.1)
+  id uuid PRIMARY KEY,
+  user_id uuid NOT NULL REFERENCES users(id),
+  code_hash bytea NOT NULL,                      -- HMAC of the 6-digit code; plain code is never stored
+  purpose text NOT NULL DEFAULT 'login',
+  device_fingerprint text,                       -- from the request body, bound to a device row on verify
+  attempts int NOT NULL DEFAULT 0,                -- verify fails past 5 (Section 12.4)
+  expires_at timestamptz NOT NULL,                -- issued_at + 5 min
+  consumed_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+-- read and written only through a SECURITY DEFINER function owned by kritvo_owner, like the phone_hash lookup on `users`
+
+CREATE TABLE refresh_tokens (
+  id uuid PRIMARY KEY,
+  tenant_id uuid NOT NULL REFERENCES tenants(id),  -- a refresh token belongs to one tenant session
+  user_id uuid NOT NULL REFERENCES users(id),
+  membership_id uuid NOT NULL REFERENCES memberships(id),
+  device_id uuid REFERENCES devices(id),
+  token_hash bytea NOT NULL UNIQUE,                -- opaque token; only the hash is stored
+  family_id uuid NOT NULL,                         -- rotates as one unit; reusing a rotated token revokes the family
+  expires_at timestamptz NOT NULL,                 -- 30-day absolute ceiling (Section 12.2)
+  revoked_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  last_used_at timestamptz NOT NULL DEFAULT now()  -- 7-day sliding window measured from here
+);
+ALTER TABLE refresh_tokens ENABLE ROW LEVEL SECURITY;
+ALTER TABLE refresh_tokens FORCE ROW LEVEL SECURITY;
+CREATE POLICY own_tenant ON refresh_tokens USING (tenant_id = app_tenant_id());
+
+CREATE TABLE auth_rate_limits (                    -- ADR-0009: Postgres counters, not Redis, until ADR-0003 decides on a queue/cache store
+  scope text NOT NULL,                              -- phone | device | account | ip
+  scope_key text NOT NULL,                          -- phone_hash, device fingerprint, membership id or IP, matching `scope`
+  window_start timestamptz NOT NULL,
+  count int NOT NULL DEFAULT 1,
+  PRIMARY KEY (scope, scope_key, window_start)
+);
+-- global counters, not tenant-scoped: OTP-request limits apply before a tenant is known
+
 -- ===== Customers, sites, assets =====
 CREATE TABLE customers (
   id uuid PRIMARY KEY,
@@ -568,7 +607,7 @@ REVOKE UPDATE, DELETE ON audit_log FROM kritvo_app;
 | `quotes`, `invoices`, `invoice_lines`, `payments` | Billing (Section 11) |
 | `expenses` | Claims with receipt evidence and approval |
 | `wa_sessions` | Per-phone conversation state (Section 6) |
-| `notification_prefs`, `outbound_messages` | Channel preferences and queued sends |
+| `notification_prefs`, `outbound_messages` | Channel preferences and queued sends; until TASK-013/TASK-019 build real WhatsApp/SMS sending, delivery goes through a logging stub (ADR-0008), which TASK-019 must replace before any production tenant, including the pilot |
 | `sync_ops` | Processed offline operations (Section 7) |
 | `plans`, `subscriptions`, `usage_counters`, `platform_invoices` | Kritvo's own billing |
 
@@ -1422,6 +1461,7 @@ sequenceDiagram
 
 - A WhatsApp-only technician never needs this: their verified WhatsApp number is their identity for bot actions, bound at onboarding by replying to an opt-in message from the tenant's invite.
 - Owners and admins: email or phone + password (argon2id) + TOTP; new-device logins trigger a WhatsApp alert.
+- Until TASK-019 ships a real sender, `login_otp` resolves to the ADR-0008 logging sender in local/dev only; production fails to start without a real sender configured.
 
 ### 12.2 Tokens
 
@@ -1467,12 +1507,12 @@ Rules enforced in services regardless of role: nobody reviews their own attendan
 
 | Control | Setting |
 | --- | --- |
-| Rate limits | OTP request: 3 per phone per 15 min, 10 per device per hour; login: 5 failures per account per 15 min then backoff; per-IP ceiling 300 requests per minute |
+| Rate limits | OTP request: 3 per phone per 15 min, 10 per device per hour; login: 5 failures per account per 15 min then backoff; per-IP ceiling 300 requests per minute. Enforced with Postgres counters (`auth_rate_limits`, Section 3.2), not Redis, until ADR-0003 decides on a queue/cache store (ADR-0009) |
 | Encryption keys | Envelope encryption: data keys per tenant for phone and GSTIN columns, wrapped by a KMS key; HMAC key for lookups stored separately |
 | CORS | Exact origins for the app and portal domains only |
 | Headers | HSTS, CSP with no inline scripts, `X-Content-Type-Options`, `Referrer-Policy: strict-origin-when-cross-origin` |
 | Presigned URLs | PUT: 10 minutes, content type and max size fixed; GET: 5 minutes |
-| Logging | No OTPs, tokens, full phone numbers or selfie URLs in logs; request IDs everywhere |
+| Logging | No OTPs, tokens, full phone numbers or selfie URLs in logs; request IDs everywhere. Documented exception: the ADR-0008 dev sender writes OTPs to logs in local/dev only, and a startup guard makes this state unreachable in production |
 | Admin access | Kritvo staff access to tenant data only through a time-boxed, logged support session approved by the tenant owner |
 
 ## 13. Observability, testing and CI
@@ -1547,16 +1587,16 @@ The MVP breaks into 23 tasks in dependency order; four need a decision or outsid
 | TASK-010 | Attendance, risk scoring in shadow mode, review queue | feat | 008, 009 | High |  |
 | TASK-011 | Inventory ledger and part obligations | feat | 008 | High |  |
 | TASK-012 | Contracts, maintenance plans, AMC generator, escalations | feat | 004, 008 | Medium |  |
-| TASK-013 | WhatsApp gateway: webhook, inbox, sender, metering, template registry | feat | 003, 004 | High | Meta business verification, test number |
+| TASK-013 | WhatsApp gateway: webhook, inbox, sender, metering, template registry | feat | 003, 004 | High | Meta business verification, test number; replaces the ADR-0008 logging sender |
 | TASK-014 | WhatsApp bot state machine, Flows (`punch_in`, `job_work`), data endpoint | feat | 008, 010, 013 | High |  |
 | TASK-015 | Customer OTP verification and service report PDF | feat | 008, 013 | Medium |  |
 | TASK-016 | Office web app: dispatch board, jobs, customers, review queue, inventory (`kritvo-web`) | feat | 008, 010, 011, 023 | Medium |  |
 | TASK-017 | Technician PWA and offline outbox (`kritvo-web`); sync API (`kritvo-api`) | feat | 008, 009, 023 | High |  |
 | TASK-018 | Owner dashboard (`kritvo-web`), daily WhatsApp summary, parts variance report | feat | 011, 012, 013, 023 | Low |  |
-| TASK-019 | Notification router and preferences | feat | 013 | Low |  |
+| TASK-019 | Notification router and preferences | feat | 013 | Medium | Replaces the ADR-0008 logging sender; carries the stub's security exit condition |
 | TASK-020 | Terraform production, observability, alerts, backups and restore drill | perf | 001 | Medium | Domain registered |
 | TASK-021 | Privacy: staff notice, retention purge, export and erase tools | security | 009, 010 | Medium | Counsel review of notice text |
-| TASK-022 | Pilot at Rahul Electricals: import, training, shadow-mode calibration | docs | All | Medium | Pilot dates agreed |
+| TASK-022 | Pilot at Rahul Electricals: import, training, shadow-mode calibration | docs | All | Medium | Pilot dates agreed; pilot must not run against the ADR-0008 stub |
 
 Tasks run in `kritvo-api` unless the title names `kritvo-web`; `docs/planning/TASKS.md` has a Repo column.
 
@@ -1663,6 +1703,8 @@ src/kritvo/core/deps.py, src/kritvo/core/errors.py, tests/isolation/.
 
 | Version | Date | Change | ADRs |
 | --- | --- | --- | --- |
+| 1.4 | 2026-09-19 | ADR-0008 accepted; logging-sender carve-out documented in 12.4; stub-removal exit conditions added to TASK-013, TASK-019 and TASK-022 | 0008, 0009 |
+| 1.3 | 2026-09-19 | TASK-003 identity: added `otp_codes`, `refresh_tokens` and `auth_rate_limits` tables (Section 3.2); noted the notification-delivery stub on `outbound_messages` (Section 3.3) and Postgres-backed rate limiting (Section 12.4) | 0008, 0009 |
 | 1.2 | 2026-09-17 | Back to two repositories at the owner's request: docs and infra live in `kritvo-api`; OpenAPI contract file; TASK-001 split into TASK-001 (API) and TASK-023 (web) | 0006 |
 | 1.1 | 2026-09-17 | Section 1 and TASK-001 switched from separate repositories to one monorepo (not adopted) | 0006 |
 | 1.0 | 2026-09-17 | First LLD for the MVP | 0001–0005 |

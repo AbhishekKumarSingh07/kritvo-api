@@ -13,3 +13,5 @@ Rules: statuses are Proposed, Accepted, Rejected, Deprecated or Superseded by AD
 | [0005](0005-evidence-risk-score.md) | Risk score instead of hard blocks for location and selfie | Proposed | 2026-09-17 |
 | [0006](0006-separate-repositories.md) | Separate repositories for API and web | Accepted | 2026-09-17 |
 | [0007](0007-python-fastapi-backend.md) | Python and FastAPI for the backend | Accepted | 2026-09-17 |
+| [0008](0008-stub-notification-delivery.md) | Stub outbound notification delivery until a channel exists | Accepted | 2026-09-19 |
+| [0009](0009-postgres-auth-rate-limits.md) | Rate-limit auth with Postgres counters, not Redis, until ADR-0003 | Accepted | 2026-09-19 |
