@@ -1,10 +1,10 @@
 # Status
 
-Last updated: 2026-09-18 · Phase 0 (Foundations)
+Last updated: 2026-09-19 · Phase 0 (Foundations)
 
 ## Summary
 
-Design documents are done (HLD 2.0, LLD 1.2). Both repositories are on GitHub with green CI, and the project now lives in `~/code/kritvo` (moved out of iCloud, which had hidden `.pth` files and broke local `lint-imports`). The FastAPI scaffold (TASK-001), web scaffold (TASK-023) and the database foundation with tenant isolation (TASK-002) are all verified and closed. The product is named Kritvo, pending availability checks.
+Design documents are done (HLD 2.0, LLD 1.2). Both repositories are on GitHub with green CI, and the project now lives in `~/code/kritvo` (moved out of iCloud, which had hidden `.pth` files and broke local `lint-imports`). The FastAPI scaffold (TASK-001), web scaffold (TASK-023) and the database foundation with tenant isolation (TASK-002) are all verified and closed. ADR-0002 (WhatsApp number model) was refined with a build requirement for TASK-013, still awaiting accept/reject. The product is named Kritvo, pending availability checks.
 
 ## Next up
 
