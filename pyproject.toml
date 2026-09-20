@@ -14,6 +14,9 @@ dependencies = [
   "asyncpg>=0.31",
   "alembic>=1.20",
   "python-dotenv>=1.2",
+  "argon2-cffi>=25.1.0",
+  "pyjwt[crypto]>=2.14.0",
+  "pyotp>=2.10.0",
 ]
 
 [project.scripts]
@@ -79,8 +82,7 @@ testpaths = ["tests"]
 addopts = "-ra --strict-markers"
 
 # ---------- import-linter ----------
-# Module boundaries from LLD 1.3. Add an "independence" contract for kritvo.modules.*
-# once the first two feature modules exist (TASK-002/003).
+# Module boundaries from LLD 1.3.
 [tool.importlinter]
 root_package = "kritvo"
 
@@ -89,3 +91,15 @@ name = "core and shared never import feature modules"
 type = "forbidden"
 source_modules = ["kritvo.core", "kritvo.shared"]
 forbidden_modules = ["kritvo.modules", "kritvo.main_api", "kritvo.main_gateway"]
+
+[[tool.importlinter.contracts]]
+name = "feature modules are independent"
+type = "independence"
+modules = ["kritvo.modules.identity", "kritvo.modules.notifications"]
+ignore_imports = ["kritvo.modules.identity.* -> kritvo.modules.notifications.interface"]
+
+[[tool.importlinter.contracts]]
+name = "identity depends on the notification interface only, never a concrete sender"
+type = "forbidden"
+source_modules = ["kritvo.modules.identity"]
+forbidden_modules = ["kritvo.modules.notifications.senders", "kritvo.modules.notifications.registry"]

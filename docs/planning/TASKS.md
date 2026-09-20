@@ -34,7 +34,7 @@ All business issues live in `kritvo-api`.
 | TASK-001 | API scaffolding (FastAPI), tooling, CI and OpenAPI export | api | feat | TASK-000 | Low | Done |
 | TASK-023 | Web scaffolding, tooling, CI and `pnpm gen:api` | web | feat | TASK-000 | Low | Done |
 | TASK-002 | Database foundation: roles, tenancy helpers, RLS pattern, isolation tests | api | security | 001 | High | Done |
-| TASK-003 | Identity: users, memberships, roles, OTP and password + TOTP login, tokens | api | security | 002 | High | Backlog |
+| TASK-003 | Identity: users, memberships, roles, OTP and password + TOTP login, tokens | api | security | 002 | High | Done |
 | TASK-004 | Spike: task queue and scheduler leader; write ADR-0003 | api | refactor | 002 | Medium | Backlog |
 | TASK-005 | Audit trigger with per-tenant hash chain | api | security | 002 | Medium | Backlog |
 | TASK-006 | Customers, sites, asset types, assets, custom fields, Excel import | api | feat | 003 | Medium | Backlog |

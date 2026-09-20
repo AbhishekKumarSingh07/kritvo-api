@@ -14,11 +14,21 @@ from kritvo.core.logging import configure_logging
 from kritvo.core.request_context import RequestIdMiddleware
 from kritvo.core.settings import Settings, get_settings
 
+# A generic startup hook, not a notifications-specific one: core must never import a
+# feature module (import-linter contract). The caller (main_api.py) passes whatever it
+# needs run before the app accepts requests — e.g. ADR-0008's fail-closed notification
+# sender check — without core knowing what that is.
+StartupHook = Callable[[FastAPI, Settings], None]
 
-def _lifespan(settings: Settings) -> Callable[[FastAPI], AbstractAsyncContextManager[None]]:
+
+def _lifespan(
+    settings: Settings, on_startup: StartupHook | None
+) -> Callable[[FastAPI], AbstractAsyncContextManager[None]]:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         configure_logging(settings.log_level)
+        if on_startup is not None:
+            on_startup(app, settings)
         # database_url is optional so the app can still start (e.g. in tests that never
         # touch the database) without a live PostgreSQL instance configured.
         if settings.database_url is not None:
@@ -34,16 +44,27 @@ def _lifespan(settings: Settings) -> Callable[[FastAPI], AbstractAsyncContextMan
     return lifespan
 
 
-def build_app(title: str, *, enable_cors: bool, settings: Settings | None = None) -> FastAPI:
+def build_app(
+    title: str,
+    *,
+    enable_cors: bool,
+    settings: Settings | None = None,
+    on_startup: StartupHook | None = None,
+) -> FastAPI:
     settings = settings or get_settings()
     app = FastAPI(
         title=title,
         version=__version__,
-        lifespan=_lifespan(settings),
+        lifespan=_lifespan(settings, on_startup),
         docs_url="/docs" if settings.docs_enabled else None,
         redoc_url=None,
         openapi_url="/openapi.json" if settings.docs_enabled else None,
     )
+    # Set synchronously (not only in lifespan) so a per-request `Depends` can always
+    # read the exact Settings this app was built with — never the process-global
+    # cached `get_settings()`, which a test building its own app must be able to
+    # override (e.g. HMAC/encryption keys, database_url).
+    app.state.settings = settings
     app.add_middleware(RequestIdMiddleware)
     if enable_cors:
         app.add_middleware(

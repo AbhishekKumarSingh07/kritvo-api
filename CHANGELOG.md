@@ -17,6 +17,7 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 - Claude Code `/new-module` skill and FastAPI rules for backend code.
 - Repository foundations: Claude Code instructions, rules and skills; GitHub templates; CI, docs, PR-title and secret-scan workflows; GitHub bootstrap script for both repositories (TASK-000).
 - Database foundation and tenant isolation: `kritvo_owner` / `kritvo_app` / `kritvo_system` roles (`scripts/bootstrap-db.sql`); Alembic migrations for `tenants`, `users`, `roles`, `memberships`, `customers`, `sites` with forced row-level security; the `enable_tenant_rls()` migration helper; `core/db.py`'s tenant-scoped sessions with the PgBouncer-safe transaction-local context from ADR-0001; the `tests/isolation/` suite (coverage, behaviour, portal, no-context and connection-reuse checks) against a real, throwaway PostgreSQL (TASK-002).
+- Identity: OTP login (field/portal), password + TOTP login (owners/admins), JWT access tokens with kid-based signing-key rotation, opaque rotating refresh tokens with reuse-family revocation, and `switch-tenant` — seven endpoints under `/api/v1/auth` (LLD 12.1-12.2). New tables `devices`, `otp_codes`, `refresh_tokens`, `auth_rate_limits`, plus `roles.perms_ver` and its `roles_bump_perms_ver` trigger (undocumented in LLD before this — flagged for `/doc-change`). Six `kritvo_system`-owned `SECURITY DEFINER` lookup functions for the pre-tenant-context phone/refresh-token/membership lookups. Postgres-backed auth rate limits (`modules/identity/rate_limit.py`, ADR-0009). `core/deps.py`'s `get_principal`/`get_db`/`require_permission`, closing the TASK-002 handoff; `core/tokens.py` (`KeyRing`) and `core/principal.py` (`Principal`, `PermissionsCache`) so `core` never imports a feature module. `modules/notifications/`: the `NotificationSender` interface and the ADR-0008 logging sender, with a fail-closed startup guard wired into `main_api.py`. `shared/ids.py`'s `uuid7()`. Argon2id, HMAC-SHA256 and Fernet helpers in `modules/identity/security.py`. Full integration/unit/isolation test coverage against a real PostgreSQL (TASK-003).
 
 ### Changed
 
@@ -33,3 +34,8 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 ### Fixed
 
 - Secret scan: pin `gitleaks-action` to gitleaks 8.30.1 and switch `.gitleaks.toml` to the single `[allowlist]` table so the sample idempotency key in the LLD is allowlisted correctly; set real code owners in `.github/CODEOWNERS` (TASK-000).
+- `migrations/env.py`: `fileConfig(..., disable_existing_loggers=False)` — the default silently disabled every Python logger already created in the process, including the app's own, whenever migrations ran in-process rather than as their own command (TASK-003).
+
+### Security
+
+- `scripts/bootstrap-db.sql`: `kritvo_owner` can now hand a function's ownership to `kritvo_system` (needed so a migration-created `SECURITY DEFINER` lookup can run with `kritvo_system`'s `BYPASSRLS` for the pre-tenant-context identity lookups), and `kritvo_system` gets `CREATE` on schema `public`, which PostgreSQL requires to accept that ownership transfer. `kritvo_owner` itself does not gain `BYPASSRLS` (TASK-003).

@@ -17,9 +17,13 @@ load_dotenv()
 config = context.config
 
 # Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# disable_existing_loggers=False: the default (True) silently disables every logger
+# already created in this process that alembic.ini doesn't explicitly list — harmless
+# when migrations run as their own one-off process (normal usage), but this module
+# also gets imported in-process by the test suite before the app's own loggers run,
+# and a disabled logger drops every record with no error (TASK-003 caught this).
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # Migrations run as kritvo_owner (LLD section 2.1), never as kritvo_app or a superuser.
 # The URL is never committed; it comes from the environment (see .env.example).
