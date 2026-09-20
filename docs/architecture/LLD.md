@@ -2,9 +2,9 @@
 
 | Field | Value |
 | --- | --- |
-| **Version** | 1.4 |
+| **Version** | 1.5 |
 | **Status** | Draft for review |
-| **Last updated** | 2026-09-19 |
+| **Last updated** | 2026-09-20 |
 | **Owner** | Project lead |
 | **Companion** | [HLD](HLD.md) · [Architecture summary](ARCHITECTURE.md) · [ADRs](../adr/README.md) |
 | **Implements** | HLD v2.0 |
@@ -91,7 +91,9 @@ Every transaction opened by the app sets `app.tenant_id`, and PostgreSQL policie
 | --- | --- | --- |
 | `kritvo_owner` | Alembic migrations only; owns all tables | Not used at runtime |
 | `kritvo_app` | API, gateway and tenant-scoped worker tasks | Enforced (`NOBYPASSRLS`, tables use `FORCE`) |
-| `kritvo_system` | Scheduler fan-out, platform billing, signup; only in `platform_*` code paths | Bypasses RLS; every use is audited |
+| `kritvo_system` | Scheduler fan-out, platform billing, signup; identity's pre-tenant-context lookups (TASK-003); only in `platform_*`/identity code paths | Bypasses RLS; every use is audited |
+
+`kritvo_owner` can hand a function's ownership to `kritvo_system` (`GRANT kritvo_system TO kritvo_owner` in `scripts/bootstrap-db.sql`), so a migration can create a `SECURITY DEFINER` lookup owned by `kritvo_system` instead of itself, for the identity lookups above — `kritvo_owner` does not gain `BYPASSRLS` itself, which would exempt it from `FORCE` on every table, not just these few functions.
 
 ### 2.2 Policy pattern
 
@@ -263,13 +265,21 @@ ALTER TABLE users FORCE ROW LEVEL SECURITY;
 CREATE POLICY users_via_membership ON users USING (
   EXISTS (SELECT 1 FROM memberships m
           WHERE m.user_id = users.id AND m.tenant_id = app_tenant_id()));
--- login lookups by phone_hash run through a SECURITY DEFINER function owned by kritvo_owner
+-- Login lookups by phone_hash run through a SECURITY DEFINER function owned by
+-- kritvo_system, not kritvo_owner: FORCE ROW LEVEL SECURITY applies even to a table's
+-- owner, so a kritvo_owner-owned function would see zero rows here too, with no tenant
+-- context yet to match against. kritvo_system's BYPASSRLS (Section 2.1) is what this
+-- needs. The same pattern covers the other lookups that have to run before a tenant is
+-- known: memberships_for_user (picks a login's tenant), refresh_token_lookup (an
+-- opaque refresh token carries no tenant of its own), user_auth_lookup and
+-- user_totp_secret (password/TOTP login, TASK-003).
 
 CREATE TABLE roles (
   id uuid PRIMARY KEY,
   tenant_id uuid NOT NULL REFERENCES tenants(id),
   name text NOT NULL,
   permissions text[] NOT NULL,                   -- codes from the catalogue (Section 12)
+  perms_ver int NOT NULL DEFAULT 1,               -- bumped by trigger when permissions changes (12.3)
   is_system boolean NOT NULL DEFAULT false,
   UNIQUE (tenant_id, name)
 );
@@ -326,6 +336,10 @@ CREATE TABLE refresh_tokens (
   created_at timestamptz NOT NULL DEFAULT now(),
   last_used_at timestamptz NOT NULL DEFAULT now()  -- 7-day sliding window measured from here
 );
+-- POST /auth/refresh presents only the opaque token, not its tenant: finding the row
+-- runs through the kritvo_system-owned refresh_token_lookup function (see the note
+-- above `roles`), then every write goes through the normal tenant-scoped RLS path
+-- below once the caller's tenant is known.
 ALTER TABLE refresh_tokens ENABLE ROW LEVEL SECURITY;
 ALTER TABLE refresh_tokens FORCE ROW LEVEL SECURITY;
 CREATE POLICY own_tenant ON refresh_tokens USING (tenant_id = app_tenant_id());
@@ -1471,7 +1485,7 @@ sequenceDiagram
 | Refresh (opaque, random 256-bit) | 7 days sliding, 30 days absolute | HttpOnly, Secure, SameSite=Lax cookie on the API subdomain, path `/api/v1/auth` | Stored hashed with family ID and device |
 
 - Rotation on every refresh; presenting a used refresh token revokes the family and logs a security event.
-- Permissions are loaded per request from a cache keyed by `(mid, perms_ver)`; changing a role bumps `perms_ver`, so changes apply within one request.
+- Permissions are loaded per request from a cache keyed by `(mid, perms_ver)`; changing a role bumps `perms_ver`, so changes apply within one request. `perms_ver` lives on `roles` (Section 3.2), bumped automatically by a trigger when `permissions` changes.
 - Signing keys in a KMS-backed secret with a `kid`; two keys active during rotation.
 
 ### 12.3 Permission catalogue and default roles
@@ -1703,6 +1717,7 @@ src/kritvo/core/deps.py, src/kritvo/core/errors.py, tests/isolation/.
 
 | Version | Date | Change | ADRs |
 | --- | --- | --- | --- |
+| 1.5 | 2026-09-20 | TASK-003 implementation details the design missed: `roles.perms_ver` (Section 3.2, 12.2); corrected the phone_hash/refresh-token/membership/TOTP lookups from kritvo_owner to kritvo_system, since FORCE ROW LEVEL SECURITY applies even to a table's owner (Section 2.1, 3.2) | — |
 | 1.4 | 2026-09-19 | ADR-0008 accepted; logging-sender carve-out documented in 12.4; stub-removal exit conditions added to TASK-013, TASK-019 and TASK-022 | 0008, 0009 |
 | 1.3 | 2026-09-19 | TASK-003 identity: added `otp_codes`, `refresh_tokens` and `auth_rate_limits` tables (Section 3.2); noted the notification-delivery stub on `outbound_messages` (Section 3.3) and Postgres-backed rate limiting (Section 12.4) | 0008, 0009 |
 | 1.2 | 2026-09-17 | Back to two repositories at the owner's request: docs and infra live in `kritvo-api`; OpenAPI contract file; TASK-001 split into TASK-001 (API) and TASK-023 (web) | 0006 |
