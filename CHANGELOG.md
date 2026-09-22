@@ -8,6 +8,8 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 
 ### Added
 
+- `docs/planning/TASKS.md`: BIZ-013 — get Meta Tech Provider status, or partner with an approved BSP, so Kritvo can onboard a tenant's own WhatsApp number, following ADR-0002's day-one opt-in (BIZ-012).
+
 - HLD v2.0 and LLD v1.2 for Kritvo in `docs/architecture/` (BIZ-000).
 - Opsly HLD v1.0 archived in `docs/architecture/archive/`.
 - ADR-0001 to ADR-0007; ADR-0006 records the split into `kritvo-api` and `kritvo-web`; ADR-0007 fixes the backend stack on Python 3.13 and FastAPI.
