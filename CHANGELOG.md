@@ -30,6 +30,9 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 - LLD to v1.4: ADR-0008 accepted with binding exit conditions; documented the local/dev-only logging-sender carve-out in 12.4; raised TASK-019's risk to Medium and added stub-removal preconditions to TASK-013, TASK-019 and TASK-022 (TASK-003).
 - `docs/planning/TASKS.md`: added acceptance-criteria checkboxes recording ADR-0008's stub-removal exit conditions against TASK-013, TASK-019 and TASK-022 (TASK-003).
 - LLD to v1.5: added `roles.perms_ver`; corrected the phone_hash/refresh-token/membership/TOTP-secret lookups from `kritvo_owner` to `kritvo_system` in Sections 2.1 and 3.2, since `FORCE ROW LEVEL SECURITY` applies even to a table's owner — gaps found while building TASK-003's identity module (TASK-003).
+- ADR-0002 accepted: removed the "Phase 2, Business plan" gate on a tenant connecting its own WhatsApp number — every tenant defaults to Kritvo's shared number, but a tenant can opt into its own number from day one of the MVP, since the per-tenant `wa_accounts` lookup already makes both cases free to support with one code path (BIZ-012).
+- HLD to v2.1: 7.2's decision column now says a tenant's own WhatsApp number is available opt-in from day one, not gated behind Phase 2 or a plan tier (ADR-0002) (BIZ-012).
+- LLD to v1.6: 6.9 renamed from "Phase 2: tenant-owned numbers" to "Tenant-owned numbers (opt-in from day one)"; `wa_accounts` documented as covering the default shared account too (ADR-0002) (BIZ-012).
 
 ### Fixed
 

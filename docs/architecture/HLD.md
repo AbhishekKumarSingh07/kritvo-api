@@ -2,9 +2,9 @@
 
 | Field | Value |
 | --- | --- |
-| **Version** | 2.0 |
+| **Version** | 2.1 |
 | **Status** | Draft for review |
-| **Last updated** | 2026-09-17 |
+| **Last updated** | 2026-09-22 |
 | **Owner** | Project lead |
 | **Companion** | [LLD](LLD.md) · [Architecture summary](ARCHITECTURE.md) · [ADRs](../adr/README.md) |
 | **Supersedes** | [Opsly HLD v1.0](archive/HLD-v1.0-opsly.md) |
@@ -333,9 +333,11 @@ Why this split: WhatsApp Flows need a live connection, so any site with no signa
 
 | Option | How it works | Pros | Cons | Decision |
 | --- | --- | --- | --- | --- |
-| A. One Kritvo number for all tenants' staff | Staff phone numbers map to their tenant; display name "Kritvo" | Fast onboarding, one Meta verification, lowest cost | Customer messages show Kritvo, not the contractor's brand | MVP, for staff and customer messages |
-| B. Each tenant connects its own number | Kritvo onboards tenant WhatsApp accounts as a Meta Tech Provider (or through a partner BSP) using Embedded Signup | Contractor's brand; messaging billed to their account | Meta verification per tenant; more support work | Phase 2, Business plan, customer-facing messages |
+| A. One Kritvo number for all tenants' staff | Staff phone numbers map to their tenant; display name "Kritvo" | Fast onboarding, no setup, one Meta verification, lowest cost | Customer messages show Kritvo, not the contractor's brand | MVP default, for staff and customer messages, unless a tenant opts into option B |
+| B. Tenant connects its own number | Kritvo onboards the tenant's WhatsApp account as a Meta Tech Provider (or through a partner BSP) using Embedded Signup | Contractor's brand; messaging billed to their account | Meta verification per tenant; more support work | Available opt-in from day one of the MVP, for any tenant that wants it — not gated behind a later phase or plan tier (ADR-0002) |
 | C. Unofficial WhatsApp automation tools | Scripts driving personal WhatsApp | None worth having | Violates WhatsApp terms; numbers get banned | Rejected |
+
+Every tenant is looked up in `wa_accounts` (LLD section 6.9) before sending; by default that lookup resolves to the shared Kritvo number, and a tenant that has opted into option B resolves to its own number instead. Both go through the same lookup and sending code path.
 
 A staff member linked to two tenants gets a tenant picker once per day.
 
@@ -778,5 +780,6 @@ The plan is a 4-month MVP live at Rahul Electricals, 10 paying outside tenants b
 
 | Version | Date | Change | ADRs |
 | --- | --- | --- | --- |
+| 2.1 | 2026-09-22 | ADR-0002 accepted: 7.2 now says a tenant may connect its own WhatsApp number from day one of the MVP, opt-in, not gated behind a later phase or plan tier | 0002 |
 | 2.0 | 2026-09-17 | Rewrite as multi-tenant SaaS "Kritvo": validation of v1.0, market, pricing, WhatsApp-first design, architecture, trust model, compliance, roadmap | 0001, 0002, 0005 |
 | 1.0 | Before 2026-09 | "Opsly" single-company HLD (archived) | — |

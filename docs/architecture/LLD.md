@@ -2,12 +2,12 @@
 
 | Field | Value |
 | --- | --- |
-| **Version** | 1.5 |
+| **Version** | 1.6 |
 | **Status** | Draft for review |
-| **Last updated** | 2026-09-20 |
+| **Last updated** | 2026-09-22 |
 | **Owner** | Project lead |
 | **Companion** | [HLD](HLD.md) · [Architecture summary](ARCHITECTURE.md) · [ADRs](../adr/README.md) |
-| **Implements** | HLD v2.0 |
+| **Implements** | HLD v2.1 |
 
 > Source of truth: this file on `main`. Change it only through a pull request that bumps **Version** and adds a row to the Revision history at the end.
 
@@ -1008,9 +1008,9 @@ Each template exists in Hindi and English; tenant name is a variable while Kritv
 - `usage_counters` aggregate per tenant per month for dashboards and fair-use billing.
 - Alert if a tenant's billable share of messages jumps week over week (a sign of broken window handling or a pricing change).
 
-### 6.9 Phase 2: tenant-owned numbers
+### 6.9 Tenant-owned numbers (opt-in from day one)
 
-`wa_accounts(tenant_id, waba_id, phone_number_id, token_secret_ref, status)`. Webhooks are routed by `metadata.phone_number_id`; customer-facing templates then go from the tenant's own number, and Meta bills that account.
+`wa_accounts(tenant_id, waba_id, phone_number_id, token_secret_ref, status)` holds every tenant's WhatsApp account, including the default shared Kritvo account. Outbound sending always resolves through this table ("which WhatsApp account does this tenant use"), so a tenant defaults to the shared account with no row of its own to set up, and a tenant that opts into its own number (ADR-0002) instead gets a `wa_accounts` row Kritvo staff creates once its Meta Tech Provider onboarding completes. Webhooks are routed by `metadata.phone_number_id`; a tenant on its own number then sends customer-facing templates from that number, and Meta bills that account directly.
 
 ## 7. PWA offline sync protocol
 
@@ -1717,6 +1717,7 @@ src/kritvo/core/deps.py, src/kritvo/core/errors.py, tests/isolation/.
 
 | Version | Date | Change | ADRs |
 | --- | --- | --- | --- |
+| 1.6 | 2026-09-22 | ADR-0002 accepted: 6.9 renamed from "Phase 2: tenant-owned numbers" to "Tenant-owned numbers (opt-in from day one)"; `wa_accounts` now documented as covering the default shared account too, not only Phase 2 | 0002 |
 | 1.5 | 2026-09-20 | TASK-003 implementation details the design missed: `roles.perms_ver` (Section 3.2, 12.2); corrected the phone_hash/refresh-token/membership/TOTP lookups from kritvo_owner to kritvo_system, since FORCE ROW LEVEL SECURITY applies even to a table's owner (Section 2.1, 3.2) | — |
 | 1.4 | 2026-09-19 | ADR-0008 accepted; logging-sender carve-out documented in 12.4; stub-removal exit conditions added to TASK-013, TASK-019 and TASK-022 | 0008, 0009 |
 | 1.3 | 2026-09-19 | TASK-003 identity: added `otp_codes`, `refresh_tokens` and `auth_rate_limits` tables (Section 3.2); noted the notification-delivery stub on `outbound_messages` (Section 3.3) and Postgres-backed rate limiting (Section 12.4) | 0008, 0009 |
