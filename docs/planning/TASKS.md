@@ -17,14 +17,15 @@ All business issues live in `kritvo-api`.
 | BIZ-002 | Buy `.com` and `.in` domains | BIZ-001 | Backlog | |
 | BIZ-003 | Reserve company name and incorporate | BIZ-001 | Backlog | |
 | BIZ-004 | File trademark in Classes 9 and 42 | BIZ-001 | Backlog | |
-| BIZ-005 | Meta Business verification and WhatsApp test number | BIZ-003 | Backlog | Unblocks TASK-013 |
+| BIZ-005 | Meta Business verification and WhatsApp test number | BIZ-003 | Backlog | Unblocks TASK-013, BIZ-013 |
 | BIZ-006 | Design-partner agreement with Rahul Electricals | — | Ready | HLD 5.5 |
 | BIZ-007 | Answer HLD 13.3 open questions | — | Ready | |
 | BIZ-008 | Interview 10 contractors; validate pricing | BIZ-007 | Backlog | HLD 4.3, 5.1 |
 | BIZ-009 | Collect DG-set template data (intervals, checklists, parts) | BIZ-006 | Backlog | Unblocks TASK-007 |
 | BIZ-010 | Confirm Meta pricing for in-window replies from 1 Oct 2026 | — | Ready | HLD 7.6 |
 | BIZ-011 | Counsel review: DPDP staff notice and processor terms | — | Backlog | Unblocks TASK-021 |
-| BIZ-012 | Review and accept ADR-0001, 0002, 0004, 0005 | — | In progress | ADR-0001 accepted 2026-09-18; 0002/0004/0005 pending |
+| BIZ-012 | Review and accept ADR-0001, 0002, 0004, 0005 | — | In progress | ADR-0001 accepted 2026-09-18; ADR-0002 accepted 2026-09-22; 0004/0005 pending |
+| BIZ-013 | Get Meta Tech Provider status, or partner with an approved BSP, so Kritvo can onboard a tenant's own WhatsApp number (ADR-0002) | BIZ-005 | Backlog | Unblocks the own-number connect flow in TASK-013 |
 
 ## Phase 1 — MVP (engineering)
 
