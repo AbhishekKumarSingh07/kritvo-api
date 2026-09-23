@@ -9,6 +9,7 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 ### Added
 
 - `docs/planning/TASKS.md`: BIZ-013 — get Meta Tech Provider status, or partner with an approved BSP, so Kritvo can onboard a tenant's own WhatsApp number, following ADR-0002's day-one opt-in (BIZ-012).
+- `core/db.py`'s `open_tenant_session` and `_apply_tenant_context` now also stamp `app.actor_id`, mirroring `app.customer_id`: optional, empty string when absent (a worker task with no human caller), never raising. `core/deps.py`'s `get_db` passes `principal.user_id` as the actor. Nothing reads the setting yet — it's principal plumbing ahead of TASK-005's audit trigger, which will add the `app_actor_id()` SQL helper and consume it (TASK-003).
 
 - HLD v2.0 and LLD v1.2 for Kritvo in `docs/architecture/` (BIZ-000).
 - Opsly HLD v1.0 archived in `docs/architecture/archive/`.

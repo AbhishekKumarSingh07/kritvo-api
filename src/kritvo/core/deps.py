@@ -101,7 +101,7 @@ async def get_db(
 ) -> AsyncIterator[AsyncSession]:
     sessionmaker = request.app.state.db_sessionmaker
     async for session in open_tenant_session(
-        sessionmaker, principal.tenant_id, principal.portal_customer_id
+        sessionmaker, principal.tenant_id, principal.portal_customer_id, principal.user_id
     ):
         yield session
 

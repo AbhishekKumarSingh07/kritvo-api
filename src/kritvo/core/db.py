@@ -6,8 +6,12 @@ customer) onto the connection at the start of every transaction, so PostgreSQL's
 row-level security policies (migrations, section 2.2) can enforce isolation even if
 application code forgets a filter.
 
-TASK-003 wires this into a real FastAPI dependency (``core/deps.py``) once login and
-``Principal`` exist. Until then, callers construct sessions directly with this module.
+``open_tenant_session`` also stamps ``app.actor_id`` when a caller is a real
+authenticated user (``core/deps.py``'s ``get_db``). Unlike the tenant, the actor is
+optional: scheduled work (the obligation sweeper, AMC generation, retention purge)
+runs with no human behind it, so an absent actor sets ``app.actor_id`` to the empty
+string rather than raising, mirroring ``customer_id``. Nothing reads it yet — the
+audit trigger (TASK-005) is what will add ``app_actor_id()`` and consume it.
 """
 
 from collections.abc import AsyncIterator
@@ -77,18 +81,27 @@ def _apply_tenant_context(
         text("select set_config('app.customer_id', :cid, true)"),
         {"cid": str(customer_id) if customer_id else ""},
     )
+    actor_id: UUID | None = session.info.get("actor_id")
+    connection.execute(
+        text("select set_config('app.actor_id', :aid, true)"),
+        {"aid": str(actor_id) if actor_id else ""},
+    )
 
 
 async def open_tenant_session(
     sessionmaker: async_sessionmaker[AsyncSession],
     tenant_id: UUID,
     customer_id: UUID | None = None,
+    actor_id: UUID | None = None,
 ) -> AsyncIterator[AsyncSession]:
-    """Open a session stamped with the given tenant (and optional portal customer).
+    """Open a session stamped with the given tenant (and optional portal customer
+    and actor).
 
     A bare ``async with sessionmaker(info=...) as session`` works too (the tests use
     it to seed fixtures) — this wrapper exists so FastAPI's ``Depends`` has a single,
-    consistent entry point once TASK-003 adds ``core/deps.py``.
+    consistent entry point (``core/deps.py``).
     """
-    async with sessionmaker(info={"tenant_id": tenant_id, "customer_id": customer_id}) as session:
+    async with sessionmaker(
+        info={"tenant_id": tenant_id, "customer_id": customer_id, "actor_id": actor_id}
+    ) as session:
         yield session
