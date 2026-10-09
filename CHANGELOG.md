@@ -36,6 +36,7 @@ Document versions (HLD, LLD) are tracked in each document's Revision history and
 - ADR-0002 accepted: removed the "Phase 2, Business plan" gate on a tenant connecting its own WhatsApp number — every tenant defaults to Kritvo's shared number, but a tenant can opt into its own number from day one of the MVP, since the per-tenant `wa_accounts` lookup already makes both cases free to support with one code path (BIZ-012).
 - HLD to v2.1: 7.2's decision column now says a tenant's own WhatsApp number is available opt-in from day one, not gated behind Phase 2 or a plan tier (ADR-0002) (BIZ-012).
 - LLD to v1.6: 6.9 renamed from "Phase 2: tenant-owned numbers" to "Tenant-owned numbers (opt-in from day one)"; `wa_accounts` documented as covering the default shared account too (ADR-0002) (BIZ-012).
+- ADR-0004 accepted (events for field actions, versions for office edits). HLD 8.2 and LLD sections 3 and 7 already matched the decision, so no version bump was needed (BIZ-012).
 
 ### Fixed
 

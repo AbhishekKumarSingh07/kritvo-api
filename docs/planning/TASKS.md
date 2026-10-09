@@ -24,7 +24,7 @@ All business issues live in `kritvo-api`.
 | BIZ-009 | Collect DG-set template data (intervals, checklists, parts) | BIZ-006 | Backlog | Unblocks TASK-007 |
 | BIZ-010 | Confirm Meta pricing for in-window replies from 1 Oct 2026 | — | Ready | HLD 7.6 |
 | BIZ-011 | Counsel review: DPDP staff notice and processor terms | — | Backlog | Unblocks TASK-021 |
-| BIZ-012 | Review and accept ADR-0001, 0002, 0004, 0005 | — | In progress | ADR-0001 accepted 2026-09-18; ADR-0002 accepted 2026-09-22; 0004/0005 pending |
+| BIZ-012 | Review and accept ADR-0001, 0002, 0004, 0005 | — | In progress | ADR-0001 accepted 2026-09-18; ADR-0002 accepted 2026-09-22; ADR-0004 accepted 2026-10-09; 0005 pending |
 | BIZ-013 | Get Meta Tech Provider status, or partner with an approved BSP, so Kritvo can onboard a tenant's own WhatsApp number (ADR-0002) | BIZ-005 | Backlog | Unblocks the own-number connect flow in TASK-013 |
 
 ## Phase 1 — MVP (engineering)

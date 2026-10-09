@@ -1,6 +1,6 @@
 # ADR-0004: Events for field actions, versions for office edits
 
-Date: 2026-09-17 | Status: Proposed | Related: HLD 8.2, LLD 3 and 7
+Date: 2026-09-17 | Status: Accepted | Deciders: Project lead | Related: HLD 8.2, LLD 3 and 7
 
 ## Context
 
